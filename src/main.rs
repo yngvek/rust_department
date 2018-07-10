@@ -6,9 +6,10 @@
 // sorted alphabetically
 
 //Scenario:
-//TODO: Add check for department number in list of departments
+//TODO: Interface for adding users manually
+//TODO: Interface for adding manually, from list, print (e.g q=quit)
+//TODO: Redo if department doesn't exist
 //TODO: Print whole company
-//TODO: "Department added" printout should be shown with department name instead of number
 //TODO: Print alphabetically (by lastname), by department. As function
 //TODO: "Add user" as function
 
@@ -22,7 +23,9 @@ fn main() {
     let departments = initialize_departments();
     let users = initialize_users();
 
-    let mut departments_users: HashMap<String, u8> = HashMap::new();
+    //let mut departments_users: HashMap<String, u8> = HashMap::new();
+    let mut departments_users: HashMap<String, &String> = HashMap::new();
+    
 
     println!(
         "There are {} new users in system, add these to correct department:",
@@ -45,26 +48,66 @@ fn main() {
             .expect("Failed to read line");
 
         let added_department: u8 = input_string.trim().parse::<u8>().expect("Wanted a number");
-         
-        //check that exists
-        // if !departments.contains(added_department) {
-        //     println!("Non-existing department", );
-        // }
-        
 
+        //check that input exists
+        // if !departments.iter().any(|department: &Department| department.dep_id == added_department) {  //alternative to below
+        // if !departments.iter().any(|d: &Department| d.dep_id == added_department) {  //alternative //alternative to below
+        if !departments.iter().any(|ref d| d.dep_id == added_department) {
+            println!("Non-existing department, user not added. Please add a valid department");
+        }
 
-        departments_users.insert(u.first_name.to_string(), added_department);
+        let department_name: &String = &departments
+            .iter()
+            .find(|d| d.dep_id == added_department)
+            .expect("")
+            .dep_name;
 
-        println!("{} added to {}.", u.first_name, added_department);
+        departments_users.insert(u.first_name.to_string(), department_name);
+        //departments_users.insert(u.first_name.to_string(), added_department);
+        println!("{} added to {}.", u.first_name, department_name);
         println!("");
     }
-    println!("{:?}", departments_users);
-}
+
+    println!("Type c to print all users in company, sorted alphabetically",);
+    println!("Type d to print all users in department, sortet alphabetically",);
+    println!("Type cd to print all users in company, by department, sorted alphabetically",);
+
+    let mut print_operation = String::new();
+
+    io::stdin()
+        .read_line(&mut print_operation)
+        .expect("Failed to read line");
+
+    //print_string(print_operation);
+    let mut print_company: Vec<_> = departments_users.iter().collect();
+
+    match print_operation.trim().as_ref() {
+        //"c" => println!("All users in company printed {:?}", print_company),
+        "c" => {
+            println!("All users in company:", );
+            print_company.sort_by(|a, b| a.cmp(b));
+            print_company.iter().for_each(|&x| println!("{}", x.0))
+        }
+        "d" => println!("All users by department printed"),
+        "cd" => {
+            println!("All users in company, by department, sorted alphabetically: ");
+            print_company.sort_by(|a, b| a.1.cmp(b.1).then_with(|| a.cmp(b)));
+            print_company.iter().for_each(|&x| println!("{}, {}", x.0, x.1))
+        },
+        _ => (println!("LOL")),
+    }
+} //main
 
 #[derive(Debug)]
 struct Department {
     dep_id: u8,
     dep_name: String,
+}
+
+impl PartialEq for Department {
+    fn eq(&self, other: &Department) -> bool {
+        self.dep_id == other.dep_id
+    }
 }
 
 #[derive(Debug)]
@@ -127,7 +170,3 @@ fn initialize_departments() -> Vec<Department> {
 
     departments
 }
-
-// fn add_user_to_department(user: User) -> bool {
-//     true
-// }
