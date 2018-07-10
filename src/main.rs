@@ -7,11 +7,11 @@
 
 //Scenario:
 //TODO: Interface for adding users manually
-//TODO: Interface for adding manually, from list, print (e.g q=quit)
+//TODO: Add framework text interface (add, report, quit)
 //TODO: Redo if department doesn't exist
-//TODO: Print whole company
 //TODO: Print alphabetically (by lastname), by department. As function
 //TODO: "Add user" as function
+//TODO: Modulize
 
 #![allow(unused_variables)]
 // #[warn(dead_code)]
@@ -69,7 +69,7 @@ fn main() {
     }
 
     println!("Type c to print all users in company, sorted alphabetically",);
-    println!("Type d to print all users in department, sortet alphabetically",);
+    println!("Type d to print all users in department, sorted alphabetically",);
     println!("Type cd to print all users in company, by department, sorted alphabetically",);
 
     let mut print_operation = String::new();
@@ -82,7 +82,6 @@ fn main() {
     let mut print_company: Vec<_> = departments_users.iter().collect();
 
     match print_operation.trim().as_ref() {
-        //"c" => println!("All users in company printed {:?}", print_company),
         "c" => {
             println!("All users in company:", );
             print_company.sort_by(|a, b| a.cmp(b));
